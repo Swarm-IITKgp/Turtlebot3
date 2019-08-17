@@ -1,0 +1,42 @@
+Flow of control:-
+
+1. getTrajectory and getCentroid services should be started from mapping.py
+2. After this occpuancy grid and laser scan subscribers are defined.
+3. request_pos_at_rate and scanProcessing are started in two threads.
+4. Bot gets initial pose and starts exploration by calling exploreEnvironment.
+
+exploreEnvironment:
+1. Starts a new iteration by rotating 360 degrees at its spot.
+2. This is done using rotateAround which rotates by 40 degrees 9 times to make one full rotation.
+3. Calls getCentroid to receive centroid position.
+4. Navigates to the centroid using navigateToGoal.
+
+navigateToGoal:
+1. Starts a thread for requestTrajectory.
+2. Receives trajectory and calls executeTrajectory.
+
+requestTrajectory:
+1. Calls getTrajectory.
+2. If previous trajectory was not defined then executeTrajectory is notified that NEW trajectory should be used.
+3. If new trajectory is different from previous trajectory, then executeTrajectory is notified about the NEW trajectory.
+
+executeTrajectory:
+1. Tries to reach each of the local goals given by A* in a straight line.
+2. If an obstacle is encoutered then this function returns and exploreEnvironment is restarted.
+3. If a new trajectory has been generated then the function starts executing the NEW trajectory.
+4. When all the local goals in the trajctory has been reached, the bot has reached its final destination.
+
+
+===============================================================================================
+
+getTrajectory:
+1. First processes the occupancy grid.
+2. Path is calculated using A* algo.
+
+getCentroid:
+1. Returns centroid of different clusters one by one.
+2. If the centroid is in unexplored area or obstacle then the nearest empty cell is returned.
+3. If the centroid is on border with unexplored cell, then return the first empty cell. 
+
+================================================================================================
+
